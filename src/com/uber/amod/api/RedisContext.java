@@ -1,11 +1,13 @@
 package com.uber.amod.api;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import com.uber.amod.object.AmodObject;
 import com.uber.amod.object.AmodPolicy;
 import com.uber.amod.object.AmodRegex;
+import com.uber.amod.object.AmodRepo;
 import com.uber.amod.object.AmodType;
 
 import io.lettuce.core.RedisClient;
@@ -58,6 +60,7 @@ public StatefulRedisConnection<String, String> context;
 	{
 		//Need to flush the object
 		RedisAsyncCommands<String, String> asyncCommands = context.async();
+		
 		//Let's just assume a policy object for now
 		if (_object.getType().equals(AmodType.type.POLICY))
 		{
@@ -66,9 +69,23 @@ public StatefulRedisConnection<String, String> context;
 			for (AmodRegex amodRegex : policy.getAmodRegexes())
 			{
 				asyncCommands.hset(policy.getPolicyName(), String.valueOf(i), amodRegex.getRegexID());
+				save(amodRegex);
 				i++;
 			}
 			
+		}
+		if (_object.getType().equals(AmodType.type.REGEX))
+		{
+			AmodRegex regex = (AmodRegex)_object;
+			asyncCommands.hset(regex.getRegexID(), regex.getAttribute(), regex.getRegexString());
+		}
+		if (_object.getType().equals(AmodType.type.USERREPO))
+		{
+			AmodRepo repo = (AmodRepo)_object;
+			for (String key : repo.getPermissions().keySet())
+			{
+				asyncCommands.hset(repo.getName(), key, repo.getPermissionValue(key));
+			}
 		}
 	}
 

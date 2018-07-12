@@ -45,5 +45,10 @@ String regex;
 		return regex_id;
 	}
 	
+	public String getRegexString()
+	{
+		return regex;
+	}
+	
 	
 }
