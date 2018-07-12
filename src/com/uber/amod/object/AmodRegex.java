@@ -1,6 +1,6 @@
 package com.uber.amod.object;
 
-public class AmodRegex {
+public class AmodRegex extends AmodObject{
 
 String regex_id;
 String attribute;
@@ -9,11 +9,12 @@ String regex;
 	
 	public AmodRegex()
 	{
-		
+		_type = AmodType.type.REGEX;
 	}
 	
 	public AmodRegex(String regex_id, String attribute, String regex)
 	{
+		new AmodRegex();
 		this.regex_id=regex_id;
 		this.attribute = attribute;
 		this.regex = regex;
