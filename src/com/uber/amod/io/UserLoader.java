@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 
 import org.json.simple.parser.JSONParser;
 
+import com.uber.amod.api.RedisContext;
 import com.uber.amod.ui.AmodCLI;
 
 import io.lettuce.core.api.StatefulRedisConnection;

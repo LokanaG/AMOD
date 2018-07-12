@@ -16,6 +16,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import com.uber.amod.api.RedisContext;
 import com.uber.amod.ui.AmodCLI;
 
 import io.lettuce.core.api.StatefulRedisConnection;

@@ -1,4 +1,4 @@
-package com.uber.amod.io;
+package com.uber.amod.api;
 
 import java.util.Map;
 
