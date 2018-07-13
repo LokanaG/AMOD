@@ -86,7 +86,7 @@ public class UserLoader {
 	
 	private static void processUser(String line, String correlation)
 	{
-		
+		//TODO - refactor to use object model
 		String[] protoRecord  = parseCSVLine(line);
 		Map<String,String> record = new HashMap<String,String>();
 		if (header != null)

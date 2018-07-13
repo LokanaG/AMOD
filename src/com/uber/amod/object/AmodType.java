@@ -4,6 +4,6 @@ public abstract class AmodType {
 
 	public enum type
 	{
-		POLICY, REGEX, USERREPO, ACTIVITYSET
+		POLICY, REGEX, USERREPO, ACTIVITYSET, STAT
 	}
 }
