@@ -17,7 +17,7 @@ import io.lettuce.core.api.async.RedisAsyncCommands;
 import io.lettuce.core.api.sync.RedisCommands;
 
 public class RedisContext {
-public StatefulRedisConnection<String, String> context;
+public StatefulRedisConnection<String, String> context = null;
 	
 	public RedisContext(String password, String host, int port)
 	{
@@ -25,6 +25,11 @@ public StatefulRedisConnection<String, String> context;
 		this.context=connect(redisConnect);
 	}
 	
+	
+	public StatefulRedisConnection<String,String> getGonnection()
+	{
+		return context;
+	}
 	
 	public StatefulRedisConnection<String, String> connect(String redisConnect)
 	{

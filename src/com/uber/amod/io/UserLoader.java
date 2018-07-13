@@ -26,9 +26,15 @@ public class UserLoader {
 	static RedisCommands<String,String> syncCommands = null;
 	public static void main(String[] args)
 	{
-		context = RedisContext.connect();
-		syncCommands  = context.sync();
-		Map<String,String> ops = new AmodCLI(args).parse();
+		
+		   Map<String,String> ops = new AmodCLI(args).parse();
+		   String host = ops.get("host");
+		   String port = ops.get("port");
+		   String password = ops.get("password");
+		   
+		   context =  new RedisContext(password,host,Integer.parseInt(port)).getGonnection();
+		   syncCommands  = context.sync();
+
 		readFile(ops.get("appName"),ops.get("fileName"),ops.get("correlation"));
 		
 	}

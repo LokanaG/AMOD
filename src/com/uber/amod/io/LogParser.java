@@ -29,19 +29,27 @@ public class LogParser {
 	   public static void main(String[] args){
 			 
 		   Map<String,String> ops = new AmodCLI(args).parse();
+		   String host = ops.get("host");
+		   String port = ops.get("port");
+		   String password = ops.get("password");
 		   
-		   JSONParser parser = new JSONParser();
-		   Map<String,Integer> stats = new HashMap<String,Integer>();
-		   context = RedisContext.connect();
+		   context =  new RedisContext(password,host,Integer.parseInt(port)).getGonnection();
 		   syncCommands  = context.sync();
 		   readLog(ops.get("i"), ops.get("tag"));
 	   }
 	public static void readLog(String logFile, String tag)
 	{
 		
-		   JSONParser parser = new JSONParser();   
+		   JSONParser parser = new JSONParser(); 
 		   File file = new File(logFile);
-		   BufferedReader b = null;
+		   FileReader filereader = null;
+		try {
+			filereader = new FileReader(file);
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		   BufferedReader b = new BufferedReader(filereader);
 		   String line = "";
 		   Long startTime = null;
 		   Long endTime= null;
