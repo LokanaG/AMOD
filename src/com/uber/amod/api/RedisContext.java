@@ -21,8 +21,9 @@ public StatefulRedisConnection<String, String> context = null;
 	
 	public RedisContext(String password, String host, int port)
 	{
-		String redisConnect = "redis://" + password + "@" + host + ":" + port + "/";
-		this.context=connect(redisConnect);
+		//String redisConnect = "redis://" + password + "@" + host + ":" + port + "/";
+		
+		this.context=connect("redis://127.0.0.1/0");
 	}
 	
 	
@@ -33,8 +34,9 @@ public StatefulRedisConnection<String, String> context = null;
 	
 	public StatefulRedisConnection<String, String> connect(String redisConnect)
 	{
+		System.out.println("Redis Connect String : " + redisConnect);
 		RedisClient redisClient = RedisClient
-				  .create("redisConnect");
+				  .create(redisConnect);
 				this.context = redisClient.connect();
 		return context;
 	}

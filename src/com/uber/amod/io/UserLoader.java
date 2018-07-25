@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 import org.json.simple.parser.JSONParser;
 
 import com.uber.amod.api.RedisContext;
-import com.uber.amod.ui.AmodCLI;
+import com.uber.amod.ui.AmodUserCLI;
 
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;
@@ -27,15 +27,30 @@ public class UserLoader {
 	public static void main(String[] args)
 	{
 		
-		   Map<String,String> ops = new AmodCLI(args).parse();
-		   String host = ops.get("host");
+		
+		
+		   //Map<String,String> ops = new AmodUserCLI(args).parse();
+		Map<String,String> ops = new HashMap<String,String>();   
+		String host = ops.get("host");
+		   if (host == null)
+		   {
+			   host = "localhost";
+		   }
 		   String port = ops.get("port");
+		   if (port == null)
+		   {
+			   port = "6379";
+		   }
 		   String password = ops.get("password");
+		   if(password == null)
+		   {
+			   password = "";
+		   }
 		   
 		   context =  new RedisContext(password,host,Integer.parseInt(port)).getGonnection();
 		   syncCommands  = context.sync();
-
-		readFile(ops.get("appName"),ops.get("fileName"),ops.get("correlation"));
+		   readFile("FlexForce","/home/amod/FlexForce.csv","email_work");
+//		   readFile(ops.get("appName"),ops.get("fileName"),ops.get("correlationKey"));
 		
 	}
 	
@@ -58,11 +73,14 @@ public class UserLoader {
 				 if (headercount ==0) 
 				 {
 					 //then update the header
+					 System.out.println("Processing Header " + line);
+					 headercount++;
 					 processHeader(line);
 				 } else
 				 {
 					 //process a user record
-					 processUser(line, correlation);
+					 System.out.println("Processing Record " + line);
+					 processUser(line, correlation, appName);
 				 }
 
 			}
@@ -84,21 +102,27 @@ public class UserLoader {
 		header = line.split(",");
 	}
 	
-	private static void processUser(String line, String correlation)
+	private static void processUser(String line, String correlation, String appName)
 	{
 		//TODO - refactor to use object model
 		String[] protoRecord  = parseCSVLine(line);
 		Map<String,String> record = new HashMap<String,String>();
-		if (header != null)
+		System.out.println("Header length " + header.length + "  Protorecord length " + protoRecord.length);
+
+			if (header != null)
 		{
-			for (int i = 0 ; i < header.length ; i++)
+			//System.out.println("Header length " + header.length + "  Protorecord length " + protoRecord.length);
+			for (int i = 0 ; i < (protoRecord.length) ; i++)
 			{
-			   record.put(header[i], protoRecord[i]);
+				String protokey = appName + " : " + header[i];				
+				System.out.println("Setting Key " + protokey);
+			   record.put(protokey, protoRecord[i]);
 			}
 		}
+		
 		for (String key :record.keySet())
 		{
-			syncCommands.hset(record.get(correlation), key, record.get(key));
+			syncCommands.hset(record.get(appName + " : " +correlation), key, record.get(key));
 		}
 		
 	}
