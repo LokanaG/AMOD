@@ -93,10 +93,14 @@ public class UserExporter {
 		for (Map<String,String> user : users)
 		{
 			String line = new String();
-			
+			Boolean include = false;
 			for (String column : header)
 			{
 				String attribute = user.get(column);
+				if (column.contains("AD :") && attribute != null)
+				{
+					include = true;
+				}
 				if (attribute == null)
 				{
 					attribute = "";
@@ -104,8 +108,11 @@ public class UserExporter {
 				line = line + "|" +attribute;
 			}
 			try {
+				if (include)
+				{
 				writer.write(line);
 				writer.newLine();
+				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
