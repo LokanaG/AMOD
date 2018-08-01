@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,14 +29,17 @@ public class LogParser {
 
 	   public static void main(String[] args){
 			 
-		   Map<String,String> ops = new AmodCLI(args).parse();
-		   String host = ops.get("host");
-		   String port = ops.get("port");
-		   String password = ops.get("password");
+		  // Map<String,String> ops = new AmodCLI(args).parse();
+		//   String host = ops.get("host");
+		//   String port = ops.get("port");
+		 //  String password = ops.get("password");
 		   
-		   context =  new RedisContext(password,host,Integer.parseInt(port)).getGonnection();
+		 //  context =  new RedisContext(password,host,Integer.parseInt(port)).getGonnection();
+		   RedisContext factory = new RedisContext("","",0,"");
+		   context = factory.connect("redis://127.0.0.1/1");
 		   syncCommands  = context.sync();
-		   readLog(ops.get("i"), ops.get("tag"));
+		  // readLog(ops.get("i"), ops.get("tag"));
+		   readLog("/home/amod/vehicles.log", "vehicles");
 	   }
 	public static void readLog(String logFile, String tag)
 	{
@@ -43,6 +47,7 @@ public class LogParser {
 		   JSONParser parser = new JSONParser(); 
 		   File file = new File(logFile);
 		   FileReader filereader = null;
+		   LinkedHashSet<String> users = new LinkedHashSet<String>();
 		try {
 			filereader = new FileReader(file);
 		} catch (FileNotFoundException e1) {
@@ -51,8 +56,8 @@ public class LogParser {
 		}
 		   BufferedReader b = new BufferedReader(filereader);
 		   String line = "";
-		   Long startTime = null;
-		   Long endTime= null;
+		   Double startTime = null;
+		   Double endTime= null;
 		   try {
 			while ((line = b.readLine()) != null)
 			   {	    	
@@ -61,30 +66,65 @@ public class LogParser {
 				try {
 					obj = parser.parse(line);
 				} catch (ParseException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					//System.out.println(e);
+					//System.out.println("parsing failed");
+					
 				}
 				   JSONObject jsonObject = (JSONObject) obj;
-				   Long ts = (Long) jsonObject.get("ts");
+				    if (jsonObject != null)
+				    {
+				   Double ts = new Double("0");
+				   long tsLong = 0;
+				 //  System.out.println("Class for ts : " + jsonObject.get("ts").getClass());
+				  // System.out.println("Class for tsObj : " + ts.getClass());
+				   if (jsonObject.get("ts").getClass().isInstance(ts))
+				   {
+				    ts = (Double) jsonObject.get("ts");
+				   // System.out.println("ts " + ts);
+				   }
+				   else if (jsonObject.get("ts").getClass().isInstance(tsLong))
+				   {
+					   tsLong = (Long)(jsonObject.get("ts"));
+					  // System.out.println("tsLong " + tsLong);
+					   ts = Double.valueOf(tsLong);
+				   }
+				  // System.out.println("TS " + ts);
 			       JSONObject msg = (JSONObject) jsonObject.get("msg");
 			       String remoteuser = (String) msg.get("remote_user");
 			       String appName = (String) msg.get("app");
 			       String uri = (String) msg.get("uri");
-			       if ((startTime == null) || (ts < startTime))
+			       if ((null == startTime) || (ts < startTime))
 			       {
 			          	startTime = ts;
 			       }
-			       if ((endTime == null) || (ts > endTime))
+			       if ((null == endTime) || (ts > endTime))
 			       {
 			           	endTime = ts;
 			       }
 			       //now we update Redis
-			       syncCommands.hset(tag, remoteuser, String.valueOf(ts));
+			       if (remoteuser != null)
+			       {
+			    	   users.add(remoteuser);
+			    	  // System.out.println(tag + " " + remoteuser + " " + jsonObject.get("ts").toString());
+			           syncCommands.hset(tag, ts.toString(), remoteuser);	   
+			          // System.out.println("startTime " + startTime + " endTime " + endTime + " uniqueUsers " + users.size());
+			       }
 			   }
+			   }
+			System.out.println("startTime " + startTime + " endTime " + endTime + " uniqueUsers " + users.size());
+			for ( String user : users)
+			{
+			  syncCommands.hset(tag + "-stat", user, "");
+			}
+			syncCommands.hset(tag + "-stat", "startTime", startTime.toString());
+			syncCommands.hset(tag + "-stat", "endTime", endTime.toString());
+			   
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
+		   
 
 	}
 	

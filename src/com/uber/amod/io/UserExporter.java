@@ -21,17 +21,18 @@ import io.lettuce.core.ScanIterator;
 import io.lettuce.core.TransactionResult;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.async.RedisAsyncCommands;
+import io.lettuce.core.api.sync.RedisCommands;
 
 public class UserExporter {
 
-	public static void main(String[] args)  {
+	public static void main(String[] args) throws InterruptedException, ExecutionException  {
 		// TODO Auto-generated method stub
 		
 		LinkedHashSet<String> header = new LinkedHashSet<String>();
 		header.add("user");
 		int counter = 1;
 		List<Map<String,String>> users = new ArrayList<Map<String,String>>();
-		RedisContext context = new RedisContext("", "localhost", 0);
+		RedisContext context = new RedisContext("", "localhost", 0, "0");
 		StatefulRedisConnection<String, String> connection = context.getGonnection();
 		RedisAsyncCommands<String, String> async = connection.async();
 		RedisFuture<List<String>> exec = async.keys("*");
@@ -89,10 +90,22 @@ public class UserExporter {
 			e.printStackTrace();
 		}
 	     
-	  
+	    StatefulRedisConnection<String, String> logcontext = null;
+		RedisCommands<String,String> syncCommands = null;
+	    RedisContext factory = new RedisContext("","",0,"");
+		   logcontext = factory.connect("redis://127.0.0.1/1");
+		   syncCommands  = logcontext.sync();
+		  
+	    Map<String, String> simLog = syncCommands.hgetall("vehicles" + "-stat");
+	    int records = 1;
 		for (Map<String,String> user : users)
 		{
+			String userName = user.get("user");
+			if (simLog.containsKey(userName))
+			{
+				
 			String line = new String();
+			
 			Boolean include = false;
 			for (String column : header)
 			{
@@ -111,6 +124,7 @@ public class UserExporter {
 				if (include)
 				{
 				writer.write(line);
+				records++;
 				writer.newLine();
 				}
 			} catch (IOException e) {
@@ -118,6 +132,7 @@ public class UserExporter {
 				e.printStackTrace();
 			}
 			//System.out.println(line);
+			}
 		}
 		try {
 			writer.close();
@@ -125,7 +140,7 @@ public class UserExporter {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("Processing Finished");
+		System.out.println("Processing Finished " + records + " records written");
 		
 	}
 

@@ -47,9 +47,9 @@ public class UserLoader {
 			   password = "";
 		   }
 		   
-		   context =  new RedisContext(password,host,Integer.parseInt(port)).getGonnection();
+		   context =  new RedisContext(password,host,Integer.parseInt(port), "").getGonnection();
 		   syncCommands  = context.sync();
-		   readFile("FlexForce","/home/amod/FlexForce.csv","email_work");
+		   readFile("AD","/home/amod/AD_Member_Attributes_new.csv","mail");
 //		   readFile(ops.get("appName"),ops.get("fileName"),ops.get("correlationKey"));
 		
 	}

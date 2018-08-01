@@ -19,9 +19,9 @@ import io.lettuce.core.api.sync.RedisCommands;
 public class RedisContext {
 public StatefulRedisConnection<String, String> context = null;
 	
-	public RedisContext(String password, String host, int port)
+	public RedisContext(String password, String host, int port, String db)
 	{
-		//String redisConnect = "redis://" + password + "@" + host + ":" + port + "/";
+		String redisConnect = "redis://" + password + "@" + host + ":" + port + "/" + db;
 		
 		this.context=connect("redis://127.0.0.1/0");
 	}
