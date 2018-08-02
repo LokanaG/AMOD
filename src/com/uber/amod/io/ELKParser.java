@@ -94,7 +94,7 @@ public class ELKParser {
            PrintWriter printer = new PrintWriter(writer);
 		   //Now we print the summary stats for each user
 		   Set<String> users = stats.keySet();
-		   Iterator i = users.iterator();
+		   Iterator<String> i = users.iterator();
 		   while (i.hasNext())
 		   {
 			   String user = (String)i.next();

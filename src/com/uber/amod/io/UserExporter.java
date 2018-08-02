@@ -101,7 +101,7 @@ public class UserExporter {
 		for (Map<String,String> user : users)
 		{
 			String userName = user.get("user");
-			if (simLog.containsKey(userName))
+		//	if (simLog.containsKey(userName))
 			{
 				
 			String line = new String();
@@ -111,8 +111,11 @@ public class UserExporter {
 			{
 				String attribute = user.get(column);
 				if (column.contains("AD :") && attribute != null)
-				{
+				{ 
+					if (column.contains("userAccountControl") && attribute.contains("512"))
+					{
 					include = true;
+					}
 				}
 				if (attribute == null)
 				{

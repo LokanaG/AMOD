@@ -22,13 +22,13 @@ public class AmodUserCLI {
  public AmodUserCLI(String[] args) {
 
   this.args = args;
-  options.addOption("h", "help", false, "show help.");
-  options.addOption("host", "Host", false, "Redis host, defaults to localhost");
-  options.addOption("port", "Port", false, "Redis port, defaults to 6379");
+  options.addOption("h", "Help", false, "Displays this help page");
+  options.addOption("host", "Host", false, "Redis host, defaults to <localhost>");
+  options.addOption("port", "Port", false, "Redis port, defaults to <6379>");
   options.addOption("password", "Password", false, "Redis password, default is none");
-  options.addOption("appName", "appName", true, "Source Application Name");
-  options.addOption("fileName", "fileName", true, "Source File Name");
-  options.addOption("correlationKey", "CorrelationKey", true, "Correlation Attribute");
+  options.addOption("appName", "appName", true, "Source Application Name eg. <AD>");
+  options.addOption("fileName", "fileName", true, "Source File Name eg. </users/amod/ad.csv");
+  options.addOption("correlationKey", "CorrelationKey", true, "Correlation Attribute eg <email>");
  }
 
  public Map<String,String> parse() {
@@ -40,7 +40,7 @@ public class AmodUserCLI {
   try {
 
    cmd = parser.parse(options, args);
-
+   
    if (cmd.hasOption("h"))
    {
     help();
@@ -66,9 +66,10 @@ public class AmodUserCLI {
     // Whatever you want to do with the setting goes here
    } 
    if (cmd.hasOption("correlationKey")) {
-	   ops.put("password", cmd.getOptionValue("correlationKey"));
+	   ops.put("correlationKey", cmd.getOptionValue("correlationKey"));
     // Whatever you want to do with the setting goes here
    } 
+   
    
    else {
     help();
@@ -79,6 +80,7 @@ public class AmodUserCLI {
    help();
 
   }
+  System.out.println(ops);
 return ops;
  }
 

@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 import org.json.simple.parser.JSONParser;
 
 import com.uber.amod.api.RedisContext;
+import com.uber.amod.object.AmodRepo;
 import com.uber.amod.ui.AmodUserCLI;
 
 import io.lettuce.core.api.StatefulRedisConnection;
@@ -22,15 +23,14 @@ import io.lettuce.core.api.sync.RedisCommands;
 public class UserLoader {
 
 	static StatefulRedisConnection<String, String> context = null;
+	static RedisContext redisContext = null;
 	static String[] header  = null;
 	static RedisCommands<String,String> syncCommands = null;
+
+	
 	public static void main(String[] args)
 	{
-		
-		
-		
-		   //Map<String,String> ops = new AmodUserCLI(args).parse();
-		Map<String,String> ops = new HashMap<String,String>();   
+		Map<String,String> ops = new AmodUserCLI(args).parse();  
 		String host = ops.get("host");
 		   if (host == null)
 		   {
@@ -46,11 +46,12 @@ public class UserLoader {
 		   {
 			   password = "";
 		   }
+	       
 		   
-		   context =  new RedisContext(password,host,Integer.parseInt(port), "").getGonnection();
+		   redisContext =  new RedisContext(password,host,Integer.parseInt(port), "0");
+	       context = redisContext.getGonnection();
 		   syncCommands  = context.sync();
-		   readFile("AD","/home/amod/AD_Member_Attributes_new.csv","mail");
-//		   readFile(ops.get("appName"),ops.get("fileName"),ops.get("correlationKey"));
+		   readFile(ops.get("appName"),ops.get("fileName"),ops.get("correlationKey"));
 		
 	}
 	
@@ -104,26 +105,25 @@ public class UserLoader {
 	
 	private static void processUser(String line, String correlation, String appName)
 	{
-		//TODO - refactor to use object model
 		String[] protoRecord  = parseCSVLine(line);
 		Map<String,String> record = new HashMap<String,String>();
-		System.out.println("Header length " + header.length + "  Protorecord length " + protoRecord.length);
-
-			if (header != null)
-		{
-			//System.out.println("Header length " + header.length + "  Protorecord length " + protoRecord.length);
+		if (header != null)
+		  {
 			for (int i = 0 ; i < (protoRecord.length) ; i++)
-			{
-				String protokey = appName + " : " + header[i];				
-				System.out.println("Setting Key " + protokey);
-			   record.put(protokey, protoRecord[i]);
-			}
-		}
-		
-		for (String key :record.keySet())
-		{
-			syncCommands.hset(record.get(appName + " : " +correlation), key, record.get(key));
-		}
+			   {
+				 String protokey = appName + " : " + header[i];				
+			     record.put(protokey, protoRecord[i]);
+			   }
+		    }
+		System.out.println(record);
+		AmodRepo userRecord = new AmodRepo();
+		userRecord.setPermissions(record);
+		userRecord.setName(record.get(appName + " : " +correlation));
+		redisContext.save(userRecord);
+		//for (String key :record.keySet())
+		//{	
+		//	syncCommands.hset(record.get(appName + " : " +correlation), key, record.get(key));
+		//}
 		
 	}
 	
