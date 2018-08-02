@@ -92,14 +92,24 @@ public class UserExporter {
 				e.printStackTrace();
 			}
 
-
+			if (logStream!= null)
+			{
+				header.add(logStream);
+			}
 			
 			
 		//System.out.println("Header " + header.toArray());
 		String headerLine = new String();
 		for (String column : header)
 		{
+			if (headerLine.isEmpty())
+			{
+				headerLine = column;
+			}
+			else 
+			{
 			headerLine = headerLine + "|" +column;
+			}
 		}
 		System.out.println("Processing with Header : ");
 		System.out.println(headerLine);
@@ -127,12 +137,14 @@ public class UserExporter {
 		  
 	    Map<String, String> simLog = syncCommands.hgetall(logStream + "-stat");
 	    int records = 1;
+	    System.out.println("value of simLog " + simLog);
+
 		for (Map<String,String> user : users)
 		{
 			String userName = user.get("user");
-			if (simLog.containsKey(userName))
+			//if (simLog.isEmpty() || simLog.containsKey(userName))
 			{
-				
+			
 			String line = new String();
 			
 			Boolean include = false;
@@ -148,11 +160,25 @@ public class UserExporter {
 					include = true;
 			      }
 				}
+				if (column.contentEquals(logStream) && simLog.containsKey(userName))
+				{
+					attribute = "true";
+				}
+				if (column.contentEquals(logStream) && !simLog.containsKey(userName))
+				{
+					attribute = "false";
+				}
 				if (attribute == null)
 				{
 					attribute = "";
 				}
+				if (line.isEmpty())
+				{
+					line=attribute;
+				} else
+				{
 				line = line + "|" +attribute;
+				}
 			}
 			try {
 				if (include)

@@ -74,18 +74,14 @@ public class AmodExportCLI {
 	   ops.put("logStream", cmd.getOptionValue("logStream"));
     // Whatever you want to do with the setting goes here
    } 
-   
-   else {
-    help();
-   }
 
   } catch (ParseException e) {
 
    help();
 
   }
-  System.out.println(ops);
-return ops;
+  System.out.println("Running exporter with Options " +ops);
+  return ops;
  }
 
  private void help() {
