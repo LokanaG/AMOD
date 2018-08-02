@@ -12,8 +12,12 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.uber.amod.api.RedisContext;
+import com.uber.amod.ui.AmodExportCLI;
+import com.uber.amod.ui.AmodUserCLI;
 
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.ScanArgs;
@@ -26,13 +30,38 @@ import io.lettuce.core.api.sync.RedisCommands;
 public class UserExporter {
 
 	public static void main(String[] args) throws InterruptedException, ExecutionException  {
-		// TODO Auto-generated method stub
 		
+		Map<String,String> ops = new AmodExportCLI(args).parse();  
+		   String host = ops.get("host");
+		   if (host == null)
+		   {
+			   host = "localhost";
+		   }
+		   
+		   Integer port = null;
+		   if (ops.get("port") != null)
+		   {
+			   Integer.valueOf(ops.get("port"));
+		   }
+		   if (port == null)
+		   {
+			   port = 6379;
+		   }
+		   String password = ops.get("password");
+		   if(password == null)
+		   {
+			   password = "";
+		   }
+		   String attributeOps = ops.get("attribute");
+		   String fileName = ops.get("fileName");
+		   String regex = ops.get("regex");
+		   String logStream = ops.get("logStream");
+		   
 		LinkedHashSet<String> header = new LinkedHashSet<String>();
 		header.add("user");
 		int counter = 1;
 		List<Map<String,String>> users = new ArrayList<Map<String,String>>();
-		RedisContext context = new RedisContext("", "localhost", 0, "0");
+		RedisContext context = new RedisContext(password, host, port, "0");
 		StatefulRedisConnection<String, String> connection = context.getGonnection();
 		RedisAsyncCommands<String, String> async = connection.async();
 		RedisFuture<List<String>> exec = async.keys("*");
@@ -43,7 +72,7 @@ public class UserExporter {
 					if (!key.contentEquals("key"))
 					{
 					Map<String,String> user = new HashMap<String,String>();
-					System.out.println(counter + " Processing : " + key);
+					//System.out.println(counter + " Processing : " + key);
 					Map<String, String> values = connection.sync().hgetall(key);
 					user.put("user", key);
 					for (String value :values.keySet())
@@ -77,7 +106,7 @@ public class UserExporter {
 		// now we print all the records
 	    BufferedWriter writer = null;
 		try {
-			writer = new BufferedWriter(new FileWriter("/home/amod/users.csv"));
+			writer = new BufferedWriter(new FileWriter(fileName));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -96,12 +125,12 @@ public class UserExporter {
 		   logcontext = factory.connect("redis://127.0.0.1/1");
 		   syncCommands  = logcontext.sync();
 		  
-	    Map<String, String> simLog = syncCommands.hgetall("vehicles" + "-stat");
+	    Map<String, String> simLog = syncCommands.hgetall(logStream + "-stat");
 	    int records = 1;
 		for (Map<String,String> user : users)
 		{
 			String userName = user.get("user");
-		//	if (simLog.containsKey(userName))
+			if (simLog.containsKey(userName))
 			{
 				
 			String line = new String();
@@ -110,12 +139,14 @@ public class UserExporter {
 			for (String column : header)
 			{
 				String attribute = user.get(column);
-				if (column.contains("AD :") && attribute != null)
+				if (column.contains(attributeOps) && attribute != null)
 				{ 
-					if (column.contains("userAccountControl") && attribute.contains("512"))
-					{
+				  Pattern r = Pattern.compile(regex);
+				  Matcher m = r.matcher(attribute);
+				  if (m.find( )) 
+				  {
 					include = true;
-					}
+			      }
 				}
 				if (attribute == null)
 				{
