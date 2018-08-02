@@ -146,11 +146,16 @@ public class UserExporter {
 			{
 			
 			String line = new String();
-			
+			int columncount = 0;
 			Boolean include = false;
 			for (String column : header)
 			{
 				String attribute = user.get(column);
+				if (attribute != null && attribute.contains("|"))
+				{
+					attribute = attribute.replaceAll("\\|", "");
+					System.out.println("Replacing pipe for " + column + " : " + attribute);
+				}
 				if (column.contains(attributeOps) && attribute != null)
 				{ 
 				  Pattern r = Pattern.compile(regex);
@@ -168,17 +173,23 @@ public class UserExporter {
 				{
 					attribute = "false";
 				}
-				if (attribute == null)
+				if (attribute == null || attribute.isEmpty())
 				{
 					attribute = "";
 				}
-				if (line.isEmpty())
+				attribute = "\"" + attribute + "\"";
+				if (!line.isEmpty())
 				{
-					line=attribute;
-				} else
-				{
-				line = line + "|" +attribute;
-				}
+					attribute = "|" + attribute ;
+				} 
+				
+				line = line + attribute;
+				columncount++;
+				
+			}
+			if (columncount != header.size())
+			{
+				System.out.println("Column Count : " + columncount + " Header Count : " + header.size());
 			}
 			try {
 				if (include)
