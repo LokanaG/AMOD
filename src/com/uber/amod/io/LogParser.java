@@ -19,6 +19,7 @@ import org.json.simple.parser.ParseException;
 
 import com.uber.amod.api.RedisContext;
 import com.uber.amod.ui.AmodCLI;
+import com.uber.amod.ui.AmodLogCLI;
 
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;
@@ -29,7 +30,7 @@ public class LogParser {
 
 	   public static void main(String[] args){
 			 
-		  Map<String,String> ops = new AmodCLI(args).parse();
+		  Map<String,String> ops = new AmodLogCLI(args).parse();
 			String host = ops.get("host");
 			   if (host == null)
 			   {
@@ -53,7 +54,7 @@ public class LogParser {
 		   String redisConnect = "redis://" + host + "/1";
 		   context = factory.connect(redisConnect);
 		   syncCommands  = context.sync();
-		  readLog(ops.get("i"), ops.get("tag"));
+		  readLog(ops.get("logstream"), ops.get("tag"));
 		  // readLog("/home/amod/vehicles.log", "vehicles");
 	   }
 	public static void readLog(String logFile, String tag)
