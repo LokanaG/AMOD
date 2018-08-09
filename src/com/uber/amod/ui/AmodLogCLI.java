@@ -56,22 +56,14 @@ public class AmodLogCLI {
 	   ops.put("password", cmd.getOptionValue("password"));
     // Whatever you want to do with the setting goes here
    } 
-   if (cmd.hasOption("attribute")) {
-	   ops.put("attribute", cmd.getOptionValue("attribute"));
+   if (cmd.hasOption("logstream")) {
+	   ops.put("logstream", cmd.getOptionValue("logstream"));
     // Whatever you want to do with the setting goes here
    } 
-   if (cmd.hasOption("fileName")) {
-	   ops.put("fileName", cmd.getOptionValue("fileName"));
+   if (cmd.hasOption("tag")) {
+	   ops.put("tag", cmd.getOptionValue("tag"));
     // Whatever you want to do with the setting goes here
-   } 
-   if (cmd.hasOption("regex")) {
-	   ops.put("regex", cmd.getOptionValue("regex"));
-    // Whatever you want to do with the setting goes here
-   } 
-   if (cmd.hasOption("logStream")) {
-	   ops.put("logStream", cmd.getOptionValue("logStream"));
-    // Whatever you want to do with the setting goes here
-   } 
+   }  
 
   } catch (ParseException e) {
 
