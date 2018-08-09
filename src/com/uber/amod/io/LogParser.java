@@ -29,17 +29,32 @@ public class LogParser {
 
 	   public static void main(String[] args){
 			 
-		  // Map<String,String> ops = new AmodCLI(args).parse();
-		//   String host = ops.get("host");
-		//   String port = ops.get("port");
-		 //  String password = ops.get("password");
-		   
-		 //  context =  new RedisContext(password,host,Integer.parseInt(port)).getGonnection();
+		  Map<String,String> ops = new AmodCLI(args).parse();
+			String host = ops.get("host");
+			   if (host == null)
+			   {
+				   host = "localhost";
+			   }
+			   String port = ops.get("port");
+			   if (port == null)
+			   {
+				   port = "6379";
+			   }
+			   String password = ops.get("password");
+			   if(password == null)
+			   {
+				   password = "";
+			   }
+		  
+		  
+		  
+		   //context =  new RedisContext(password,host,Integer.parseInt(port)).getGonnection();
 		   RedisContext factory = new RedisContext("","",0,"");
-		   context = factory.connect("redis://127.0.0.1/1");
+		   String redisConnect = "redis://" + host + "/1";
+		   context = factory.connect(redisConnect);
 		   syncCommands  = context.sync();
-		  // readLog(ops.get("i"), ops.get("tag"));
-		   readLog("/home/amod/vehicles.log", "vehicles");
+		  readLog(ops.get("i"), ops.get("tag"));
+		  // readLog("/home/amod/vehicles.log", "vehicles");
 	   }
 	public static void readLog(String logFile, String tag)
 	{
